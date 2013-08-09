@@ -1,0 +1,11 @@
+name: NickReq
+main: com.gmail.cwatterson.NickReq.NickReq
+version: 1.0
+commands:
+  nickreq:
+    description: Nickname
+    usage: /nickreq [request|check|approve|deny]
+  nickreq request:
+    description: Request a Nickname Change
+    usage: /nickreq request <DesiredNickname>
+depend: [Essentials]
