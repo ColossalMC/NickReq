@@ -269,7 +269,14 @@ public class NickReq extends JavaPlugin implements Listener {
 	    			
 	    			if (success)
 	    			{
-	    				sender.sendMessage(ChatColor.GREEN + "Nick #" + numToApprove + ChatColor.GREEN + " has been approved!");
+						for(Player player: getServer().getOnlinePlayers()) 
+						{	 
+						    if(player.hasPermission("nickreq.setnicks") || player.isOp()) 
+						    {
+						    	player.sendMessage(ChatColor.GREEN + "Nick #" + numToApprove + ChatColor.GREEN + " has been approved by" + sender.getName());
+						    } 
+						}
+						return true;
 	    			}
 	    			else
 	    			{
@@ -308,8 +315,15 @@ public class NickReq extends JavaPlugin implements Listener {
 	    			boolean success = _dao.denyNick(numToDeny, sender.getName());
 	    			if (success)
 	    			{
-	    				sender.sendMessage(ChatColor.GREEN + "Nick #" + numToDeny + ChatColor.GREEN +  " has been denied!");
-	    				return true;
+						for(Player player: getServer().getOnlinePlayers()) 
+						{	 
+						    if(player.hasPermission("nickreq.setnicks") || player.isOp()) 
+						    {
+						    	player.sendMessage(ChatColor.GREEN + "Nick #" + numToDeny + ChatColor.GREEN + " has been denied by " + sender.getName());
+						    } 
+						}
+						
+						return true;
 	    			}
 	    			else
 	    			{
