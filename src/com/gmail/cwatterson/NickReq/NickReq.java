@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -151,7 +152,9 @@ public class NickReq extends JavaPlugin implements Listener {
 	    					sender.sendMessage(ChatColor.GREEN + "Nicknames may not contain &k, &l, &n, or &o");
 	    					return true;
 	    				} else {
-	    					if (desiredNick.length() > 20)
+	    					int count = StringUtils.countMatches(desiredNick, "&");
+	    					int length = desiredNick.length() - (count*2);
+	    					if (length > 20)
 	    					{
 	    						sender.sendMessage(ChatColor.GREEN + "Your requested nickname must be 20 characters or fewer!");
 	    						return true;
