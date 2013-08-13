@@ -98,11 +98,11 @@ public class NickReq extends JavaPlugin implements Listener {
 
 	    if (cmdname.equals("nickreq") && args.length == 0) 
 	    {
-	    	sender.sendMessage(ChatColor.GREEN + "to request a nickname type: /nickreq request DesiredNickname");
+	    	sender.sendMessage(ChatColor.GREEN + "To request a nickname type: /nickreq request DesiredNickname");
 	    	if (sender.hasPermission("nickreq.setnicks") || sender.isOp())
 	    	{
-	    		sender.sendMessage(ChatColor.GREEN + "to view nicks type: /nickreq check (page)");
-	    		sender.sendMessage(ChatColor.GREEN + "to approve nicks type: /nickreq approve id");
+	    		sender.sendMessage(ChatColor.GREEN + "To view nicks type: /nickreq check (page)");
+	    		sender.sendMessage(ChatColor.GREEN + "To approve nicks type: /nickreq approve id");
 	    	}
 	    	return true;
 	    }
@@ -128,7 +128,7 @@ public class NickReq extends JavaPlugin implements Listener {
 	    			if(!sender.hasPermission("nickreq.nick")  && !sender.isOp())
 	    			{
 	    				sender.sendMessage(ChatColor.GREEN + "Only Donators can have Custom Nicknames!");
-	    				sender.sendMessage(ChatColor.GREEN + "visit http://prpvp.com/shop");
+	    				sender.sendMessage(ChatColor.GREEN + "Visit http://prpvp.com/shop");
 	    				return true;
 	    			}
 	    			else
