@@ -1,6 +1,6 @@
 name: NickReq
 main: com.gmail.cwatterson.NickReq.NickReq
-version: 1.0
+version: 1.2
 commands:
   nickreq:
     description: Nickname
