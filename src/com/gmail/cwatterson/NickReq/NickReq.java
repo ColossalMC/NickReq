@@ -276,7 +276,7 @@ public class NickReq extends JavaPlugin implements Listener {
 						{	 
 						    if(player.hasPermission("nickreq.setnicks") || player.isOp()) 
 						    {
-						    	player.sendMessage(ChatColor.GREEN + "Nick #" + numToApprove + ChatColor.GREEN + " has been approved by" + sender.getName());
+						    	player.sendMessage(ChatColor.GREEN + "Nick #" + numToApprove + ChatColor.GREEN + " has been approved by " + sender.getName());
 						    } 
 						}
 						return true;
