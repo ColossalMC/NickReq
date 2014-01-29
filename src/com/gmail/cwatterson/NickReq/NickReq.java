@@ -2,6 +2,7 @@ package com.gmail.cwatterson.NickReq;
 
 import java.awt.Color;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -22,14 +23,20 @@ import org.bukkit.ChatColor;
 public class NickReq extends JavaPlugin implements Listener {
 	
 	private NickReqDAO _dao;
+	private ArrayList<String> _blacklist;
+	private String _website;
+	
+	public final NickReq plugin;
 	
 	public NickReq() 
 	{
 		
 		this._dao = new NickReqDAO();
+		this.plugin = this;
 		
 	}
 	
+
 	@Override
 	public void onEnable()
 	{
@@ -45,6 +52,12 @@ public class NickReq extends JavaPlugin implements Listener {
 		if ( !config.contains( "database" ) ) config.set( "database", "nickreq" );
 		if ( !config.contains( "username" ) ) config.set( "username", "nickrequser" );
 		if ( !config.contains( "password" ) ) config.set( "password", "testpassword" );
+		ArrayList<String> constructedDefaultList = new ArrayList<String>();
+		constructedDefaultList.add("fuck");
+		constructedDefaultList.add("shit");
+		constructedDefaultList.add("fag");
+		if ( !config.contains( "blacklist" ) ) config.set( "blacklist", constructedDefaultList);
+		if ( !config.contains( "donationWebsite" ) ) config.set( "donationWebsite", "http://prpvp.com/shop");
 		this.saveConfig();
 		
 		// Connect to the database
@@ -53,6 +66,9 @@ public class NickReq extends JavaPlugin implements Listener {
 				config.getString( "username", "username" ), 
 				config.getString( "password", "" ),
 				this.getDataFolder() );
+		
+		this._blacklist = (ArrayList<String>)config.getList("blacklist");
+		this._website = config.getString("donationWebsite");
 		
 		
 		// Register events - Listener Only
@@ -69,27 +85,34 @@ public class NickReq extends JavaPlugin implements Listener {
 	@EventHandler (priority = EventPriority.HIGHEST)
 	public void onPlayerLogin(PlayerLoginEvent e)
 	{
-		String nickname = _dao.getPendingNickname(e.getPlayer().getName());
-		if (!nickname.equals("off"))
-		{
-			System.out.println("Player has pending nick!  Applying...");
-			final String user = e.getPlayer().getName();
-			final String commandString = "nick " + user + " " + nickname;
-			
-			// Run command a second later, after player has properly joined.
-			final Player target = e.getPlayer();
-			this.getServer().getScheduler().scheduleSyncDelayedTask( this , new Runnable() {
-	            public void run()
-	            {
-	            	if ( target != null )
-	            	{
-	            		System.out.println("Running command: " + commandString);
-	            		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), commandString);
-	            		_dao.removeFromQueue(user);
-	            	}
-	            }
-	        }, 20L );
-		}
+		final String playerName = e.getPlayer().getName();
+		final Player target = e.getPlayer();
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable(){
+			@Override
+			public void run(){
+				String nickname = _dao.getPendingNickname(playerName);
+				if (!nickname.equals("off"))
+				{
+					System.out.println("Player has pending nick!  Applying...");
+					final String commandString = "nick " + playerName + " " + nickname;
+					
+					// Run command a second later, after player has properly joined.
+					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask( plugin , new Runnable() {
+			            public void run()
+			            {
+			            	if ( target != null )
+			            	{
+			            		System.out.println("Running command: " + commandString);
+			            		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), commandString);
+			            	}
+			            }
+			        }, 20L );
+					
+					_dao.removeFromQueue(playerName);
+				}
+			}
+		});
+		
 	}
 	
 	@Override
@@ -128,8 +151,8 @@ public class NickReq extends JavaPlugin implements Listener {
 	    		{
 	    			if(!sender.hasPermission("nickreq.nick")  && !sender.isOp())
 	    			{
-	    				sender.sendMessage(ChatColor.GREEN + "Only Donators can have Custom Nicknames!");
-	    				sender.sendMessage(ChatColor.GREEN + "Visit http://prpvp.com/shop");
+	    				sender.sendMessage(ChatColor.GREEN + "You do not have permission to have a nickname!");
+	    				sender.sendMessage(ChatColor.GREEN + "Visit " + Color.CYAN + _website);
 	    				return true;
 	    			}
 	    			else
@@ -140,8 +163,8 @@ public class NickReq extends JavaPlugin implements Listener {
 	    				
 	    				if (containsColors && !sender.hasPermission("nickreq.color") && !sender.isOp())
 	    				{
-	    					sender.sendMessage(ChatColor.GREEN + "Only Slayer+ can have Custom Colors!");
-	    					sender.sendMessage(ChatColor.GREEN + "visit " + Color.CYAN + "http://prpvp.com/shop");
+	    					sender.sendMessage(ChatColor.GREEN + "You do not have permission to have colors in your nickname!");
+	    					sender.sendMessage(ChatColor.GREEN + "visit " + Color.CYAN + _website);
 	    					return true;
 	    				}
 	    				else if (desiredNick.indexOf("&k") != -1 ||
@@ -150,6 +173,12 @@ public class NickReq extends JavaPlugin implements Listener {
 	    						desiredNick.indexOf("&o") != -1)
 	    				{
 	    					sender.sendMessage(ChatColor.GREEN + "Nicknames may not contain &k, &l, &n, or &o");
+	    					return true;
+	    				} else if (onBlackList(desiredNick) != null)
+	    				{
+	    					String word = onBlackList(desiredNick);
+	    					sender.sendMessage(ChatColor.GREEN + "Your nickname contains the following disallowed word: " + Color.CYAN + word);
+	    					sender.sendMessage(ChatColor.GREEN + "Please request a different nickanme.");
 	    					return true;
 	    				} else {
 	    					int count = StringUtils.countMatches(desiredNick, "&");
@@ -345,6 +374,18 @@ public class NickReq extends JavaPlugin implements Listener {
 	    
 	    return false;
 	    
+	}
+	
+	String onBlackList(String nickname)
+	{
+		nickname.replaceAll("&.","");
+		
+		for(String item : this._blacklist)
+		{
+			if (nickname.toLowerCase().contains(item.toLowerCase())) return item;
+		}
+		
+		return null;
 	}
 
 }
