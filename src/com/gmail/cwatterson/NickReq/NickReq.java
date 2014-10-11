@@ -178,7 +178,7 @@ public class NickReq extends JavaPlugin implements Listener {
 	    				{
 	    					String word = onBlackList(desiredNick);
 	    					sender.sendMessage(ChatColor.GREEN + "Your nickname contains the following disallowed word: " + Color.CYAN + word);
-	    					sender.sendMessage(ChatColor.GREEN + "Please request a different nickanme.");
+	    					sender.sendMessage(ChatColor.GREEN + "Please request a different nickname.");
 	    					return true;
 	    				} else {
 	    					int count = StringUtils.countMatches(desiredNick, "&");
