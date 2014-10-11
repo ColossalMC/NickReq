@@ -9,7 +9,6 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-//import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -56,8 +55,15 @@ public class NickReq extends JavaPlugin implements Listener {
 		constructedDefaultList.add("fuck");
 		constructedDefaultList.add("shit");
 		constructedDefaultList.add("fag");
+        constructedDefaultList.add("damn");
+        constructedDefaultList.add("bitch");
+        constructedDefaultList.add("pussy");
+        constructedDefaultList.add("asshole");
+        constructedDefaultList.add("bastard");
+        constructedDefaultList.add("slut");
+        constructedDefaultList.add("douche");
 		if ( !config.contains( "blacklist" ) ) config.set( "blacklist", constructedDefaultList);
-		if ( !config.contains( "donationWebsite" ) ) config.set( "donationWebsite", "http://prpvp.com/shop");
+		if ( !config.contains( "donationWebsite" ) ) config.set( "donationWebsite", "http://pure-realms.com/shop");
 		this.saveConfig();
 		
 		// Connect to the database
@@ -194,20 +200,18 @@ public class NickReq extends JavaPlugin implements Listener {
 	    						String colored = ChatColor.translateAlternateColorCodes('&', desiredNick);
 	    						sender.sendMessage(ChatColor.GREEN + "Your nickname request: " + colored + ChatColor.GREEN + " has been added to the queue!");
 	    						sender.sendMessage(ChatColor.GREEN + "Please wait for a staff member to approve it!");
-	    						
-	    						for(Player player: getServer().getOnlinePlayers()) 
-	    						{	 
-	    						    if(player.hasPermission("nickreq.setnicks") || player.isOp()) 
-	    						    {
-	    						        player.sendMessage(ChatColor.GREEN + "New Nickname Request!");
-	    						    } 
-	    						}
+
+                                sendToMods(ChatColor.GREEN + "New Nickname Request!");
+
 	    					} else
 	    					{
 	    						String colored = ChatColor.translateAlternateColorCodes('&', desiredNick);
 	    						sender.sendMessage(ChatColor.GREEN + "Your new nickname request: " + colored + ChatColor.GREEN + " has been added to the queue");
 	    						sender.sendMessage(ChatColor.GREEN + "and has replaced your previous nickname request. ");
 	    						sender.sendMessage(ChatColor.GREEN + "Please wait for a staff member to approve it!");
+
+                                sendToMods(ChatColor.GREEN + "New Nickname Request!");
+
 	    					}
 	    					
 	    					return true;
@@ -301,13 +305,7 @@ public class NickReq extends JavaPlugin implements Listener {
 	    			
 	    			if (success)
 	    			{
-						for(Player player: getServer().getOnlinePlayers()) 
-						{	 
-						    if(player.hasPermission("nickreq.setnicks") || player.isOp()) 
-						    {
-						    	player.sendMessage(ChatColor.GREEN + "Nick #" + numToApprove + ChatColor.GREEN + " has been approved by " + sender.getName());
-						    } 
-						}
+						sendToMods(ChatColor.GREEN + "Nick #" + numToApprove + ChatColor.GREEN + " has been approved by " + sender.getName());
 						return true;
 	    			}
 	    			else
@@ -347,13 +345,7 @@ public class NickReq extends JavaPlugin implements Listener {
 	    			boolean success = _dao.denyNick(numToDeny, sender.getName());
 	    			if (success)
 	    			{
-						for(Player player: getServer().getOnlinePlayers()) 
-						{	 
-						    if(player.hasPermission("nickreq.setnicks") || player.isOp()) 
-						    {
-						    	player.sendMessage(ChatColor.GREEN + "Nick #" + numToDeny + ChatColor.GREEN + " has been denied by " + sender.getName());
-						    } 
-						}
+						sendToMods(ChatColor.GREEN + "Nick #" + numToDeny + ChatColor.GREEN + " has been denied by " + sender.getName());
 						
 						return true;
 	    			}
@@ -378,8 +370,7 @@ public class NickReq extends JavaPlugin implements Listener {
 	
 	String onBlackList(String nickname)
 	{
-		nickname.replaceAll("&.","");
-		
+
 		for(String item : this._blacklist)
 		{
 			if (nickname.toLowerCase().contains(item.toLowerCase())) return item;
@@ -387,5 +378,18 @@ public class NickReq extends JavaPlugin implements Listener {
 		
 		return null;
 	}
+
+    void sendToMods(String message)
+    {
+
+        for(Player player: getServer().getOnlinePlayers())
+        {
+            if(player.hasPermission("nickreq.setnicks") || player.isOp())
+            {
+                player.sendMessage(message);
+            }
+        }
+
+    }
 
 }
